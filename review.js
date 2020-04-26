@@ -1,10 +1,7 @@
-const puppeteer = require("puppeteer"); // 설치된 puppeteer 모듈
+const puppeteer = require("puppeteer");
 const { Parser } = require('json2csv');
 const fs = require('fs');
 const XLSX = require('xlsx');
-
-// console.log('b : ', firstWSheet);
-
 
 const reviewCrawling = async (pageUrl, fileName) => {
     try {
@@ -59,11 +56,10 @@ const reviewCrawling = async (pageUrl, fileName) => {
             
             return scrappedData;
         });
-        // console.log('테스트 : ', reactHistory);
         const parser = new Parser();
         const csv = parser.parse(reactHistory);
-        console.log('csv 파일 : ', csv);
-        fs.writeFile(`./${fileName}.csv`, csv, 'utf8', (err) => {
+        
+        fs.writeFile(`./data/${fileName}.csv`, csv, 'utf8', (err) => {
             if (err) {
                 console.log('에러 : ', err);
             }
@@ -78,6 +74,9 @@ const workbook = XLSX.readFile('Zarina_url.xlsx');
 const sheet_name_list = workbook.SheetNames;
 const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
 
-for (let i = 0; i < data.length; i++) {
-    reviewCrawling(data[i].Url, data[i].Item_Id);
-}
+(async () => {
+    for (let i = 0; i < data.length; i++) {
+        console.log((i + 1), '번째 url 크롤링 중');
+        await reviewCrawling(data[i].Url, data[i].Item_Id);
+    }
+})();
